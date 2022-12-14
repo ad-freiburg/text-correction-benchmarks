@@ -1,0 +1,32 @@
+[project]
+name = "text_correction_benchmarks"
+version = "0.0.1"
+description = "Benchmarks and evaluation tools for text correction tasks"
+authors = [
+    { name = "Sebastian Walter", email = "swalter@cs.uni-freiburg.de" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+
+keywords = ["nlp", "text", "correction", "benchmark"]
+
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Text Processing",
+    "Topic :: Utilities"
+]
+
+dependencies = [
+
+]
+
+[project.scripts]
+"tcb.download" = "text_correction_benchmarks.cli.download:main"
+"tcb.evaluate" = "text_correction_benchmarks.cli.evaluate:main"
+
+[project.urls]
+Github = "https://github.com/bastiscode/text-correction-benchmarks"
