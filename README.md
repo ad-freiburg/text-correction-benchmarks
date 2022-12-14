@@ -5,6 +5,7 @@ This repository contains benchmarks for text correction tasks such as
 - Spelling error correction
 - Word-level spelling error detection
 - Sequence-level spelling error detection
+
 in the following simple text file format:
 - Whitespace correction
   - corrupt.txt: Input text with whitespace errors (can also contains spelling errors, but they remain uncorrected in the groundtruth)
