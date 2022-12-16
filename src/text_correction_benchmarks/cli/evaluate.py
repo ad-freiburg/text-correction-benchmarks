@@ -115,7 +115,7 @@ def evaluate(
                     groundtruths,
                     sequence_averaged=seq_avg
                 )
-                print(f"{'Sequence averaged s' if seq_avg else 'S'}pelling correction F1: {100 * f1:.2f} "
+                print(f"{'Sequence averaged s' if seq_avg else 'S'}pelling correction F1: {100 * f1:.2f}% "
                       f"(Precision: {100 * prec:.2f}%, Recall: {100 * rec:.2f}%)")
 
         elif name == "wc_f1":
@@ -126,7 +126,7 @@ def evaluate(
                     groundtruths,
                     sequence_averaged=seq_avg
                 )
-                print(f"{'Sequence averaged w' if seq_avg else 'W'}hitespace correction F1: {100 * f1:.2f} "
+                print(f"{'Sequence averaged w' if seq_avg else 'W'}hitespace correction F1: {100 * f1:.2f}% "
                       f"(Precision: {100 * prec:.2f}%, Recall: {100 * rec:.2f}%)")
 
         else:
