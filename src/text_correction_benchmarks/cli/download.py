@@ -9,10 +9,17 @@ _BENCHMARK_URL = ""
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("output_dir", type=str,
-                        help="Output directory where benchmarks will be saved and extracted to")
-    parser.add_argument("-f", "--force-download", type=str, action="store_true",
-                        help="Force download of benchmarks, event if they were already downloaded")
+    parser.add_argument(
+        "output_dir", type=str,
+        help="Output directory where benchmarks will be saved and extracted to"
+    )
+    parser.add_argument(
+        "-f",
+        "--force-download",
+        type=str,
+        action="store_true",
+        help="Force download of benchmarks, even if they were already downloaded"
+    )
     return parser.parse_args()
 
 
@@ -32,7 +39,8 @@ def download(args: argparse.Namespace):
     )
     logger.info(
         f"downloaded and extracted text correction benchmarks to {benchmark_dir}:\n\
-        {pprint.pformat(os.listdir(benchmark_dir))}")
+        {pprint.pformat(os.listdir(benchmark_dir))}"
+    )
 
 
 def main():

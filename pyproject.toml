@@ -27,6 +27,7 @@ dependencies = [
 [project.scripts]
 "tcb.download" = "text_correction_benchmarks.cli.download:main"
 "tcb.evaluate" = "text_correction_benchmarks.cli.evaluate:main"
+"tcb.baseline" = "text_correction_benchmarks.baselines:main"
 
 [project.urls]
 Github = "https://github.com/bastiscode/text-correction-benchmarks"
