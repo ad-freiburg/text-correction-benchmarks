@@ -22,17 +22,12 @@ def parse_args() -> argparse.Namespace:
         help="The benchmark type determines the metrics that will be used to evaluate the given files."
     )
     parser.add_argument(
-        "in_file",
+        "benchmark",
         type=str,
-        help="Path to the input file containing misspelled text."
+        help="Path to the benchmark directory containing input and groundtruth files."
     )
     parser.add_argument(
-        "gt_file",
-        type=str,
-        help="Path to the groundtruth file containing the target outputs."
-    )
-    parser.add_argument(
-        "pred_files",
+        "predictions",
         type=str,
         nargs="+",
         help="Paths to the prediction files as outputted by text correction models."
@@ -176,14 +171,17 @@ def run(args: argparse.Namespace) -> None:
         metric_names = {"wc_f1", "seq_acc"}
     else:
         raise RuntimeError("should not happen")
-    assert len(args.pred_files) > 0, "need to have at least one prediction file"
+    assert len(args.predictions) > 0, "need to have at least one prediction file"
+
+    in_file = os.path.join(args.benchmark, "corrupt.txt")
+    gt_file = os.path.join(args.benchmark, "correct.txt")
     try:
         evaluations = []
         pred_names = []
-        for pred_file in args.pred_files:
+        for pred_file in args.predictions:
             evaluations.append(evaluate(
-                corrupted_file=args.in_file,
-                groundtruth_file=args.gt_file,
+                corrupted_file=in_file,
+                groundtruth_file=gt_file,
                 predicted_file=pred_file,
                 metric_names=metric_names,
                 # lowercase only respected for sec benchmarks
@@ -192,12 +190,9 @@ def run(args: argparse.Namespace) -> None:
             pred_name, _ = os.path.splitext(os.path.split(pred_file)[-1])
             pred_names.append(pred_name)
     except Exception as e:
-        print(
-            f"An exception was thrown during evaluation: '{e}'.\n"
-            f"Please make sure that you passed the input, groundtruth and prediction file in the correct order "
-            f"and that they have the correct format for the benchmark type you want to evaluate."
+        raise RuntimeError(
+            f"encountered exception during evaluation: '{e}'.\n"
         )
-        return
 
     # generate nicely formatted output table for evaluations
     metric_headers = [name for name, _ in evaluations[0]]
