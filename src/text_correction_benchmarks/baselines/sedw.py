@@ -1,4 +1,6 @@
 from typing import Iterable, Dict, Any
+
+from text_correction_utils import dictionary as dct
 from text_correction_benchmarks.baselines import Baseline
 
 
@@ -10,3 +12,22 @@ class Dummy(Baseline):
     @property
     def name(self) -> str:
         return "Dummy"
+
+
+class OutOfDictionary(Baseline):
+    def __init__(self, dictionary: str):
+        self.d = dct.Dictionary.load(dictionary)
+
+    def run(self, sequences: Iterable[str], **_: Dict[str, Any]) -> Iterable[str]:
+        for s in sequences:
+            predictions = []
+            for w in s.split():
+                if self.d.contains(w):
+                    predictions.append("0")
+                else:
+                    predictions.append("1")
+            yield " ".join(predictions)
+
+    @property
+    def name(self) -> str:
+        return "OutOfDictionary"

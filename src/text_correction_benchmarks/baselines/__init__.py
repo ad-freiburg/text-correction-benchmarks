@@ -43,13 +43,23 @@ class Baseline:
         raise NotImplementedError
 
 
-def get_baseline(baseline: str) -> Baseline:
+def get_baseline(baseline: str, **kwargs: Any) -> Baseline:
     if baseline == Baselines.SEDS_DUMMY:
         from text_correction_benchmarks.baselines.seds import Dummy
         return Dummy()
+    elif baseline == Baselines.SEDS_OOD:
+        from text_correction_benchmarks.baselines.seds import OutOfDictionary
+        dictionary = kwargs.get("dictionary", None)
+        assert dictionary is not None, "dictionary is required for the seds out of dictionary baseline"
+        return OutOfDictionary(kwargs["dictionary"])
     elif baseline == Baselines.SEDW_DUMMY:
         from text_correction_benchmarks.baselines.sedw import Dummy
         return Dummy()
+    elif baseline == Baselines.SEDW_OOD:
+        from text_correction_benchmarks.baselines.sedw import OutOfDictionary
+        dictionary = kwargs.get("dictionary", None)
+        assert dictionary is not None, "dictionary is required for the sedw out of dictionary baseline"
+        return OutOfDictionary(kwargs["dictionary"])
     elif baseline == Baselines.SEC_DUMMY:
         from text_correction_benchmarks.baselines.sec import Dummy
         return Dummy()
@@ -72,7 +82,7 @@ def parse_args() -> argparse.Namespace:
             for key, baseline in vars(Baselines).items()
             if not key.startswith("_")
         ],
-        help="Which baseline to run"
+        help="The baseline to run"
     )
     parser.add_argument(
         "-f",
@@ -86,13 +96,20 @@ def parse_args() -> argparse.Namespace:
         "--out",
         type=str,
         default=None,
-        help="Path to output file"
+        help="Path to output file, if not specified output to stdout"
     )
     parser.add_argument(
         "-n",
         "--normalization",
         type=str,
+        default=None,
         help="Normalization to apply to the input text before running the baseline"
+    )
+    parser.add_argument(
+        "--dictionary",
+        type=str,
+        default=None,
+        help="Path to a dictionary file, only used for dictionary-based baselines"
     )
     return parser.parse_args()
 
@@ -110,7 +127,7 @@ def prepare(
 
 def run(args: argparse.Namespace):
     # prepare baseline and input
-    baseline = get_baseline(args.baseline)
+    baseline = get_baseline(**vars(args))
     if args.file is None:
         sequences = sys.stdin
     else:
