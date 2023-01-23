@@ -10,11 +10,11 @@ git clone https://github.com/bastiscode/text-correction-benchmarks
 cd text-correction-benchmarks && pip install .
 ```
 
-After installation you will have two command available to you:
+After installation you will have two commands available to you:
 - `tcb.evaluate` for evaluating model predictions on benchmarks
 - `tcb.baseline` for running baselines on benchmarks
 
-## Usage
+### Usage
 
 This repository contains [benchmarks](benchmarks) for text correction tasks such as
 - Whitespace correction (**wc**)
