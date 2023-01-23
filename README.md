@@ -58,7 +58,7 @@ the following procedure is recommended:
    
    # You can also pass in as additional model predictions you want to compare to, 
    # the output is formatted as a markdown table:
-   tcb.evaluate /benchmarks/<split>/<task>/<benchmark> <model_name>.txt <other_model>.txt ...
+   tcb.evaluate benchmarks/<split>/<task>/<benchmark> <model_name>.txt <other_model>.txt ...
    ```
 
 Depending on the task the following metrics are calculated:
