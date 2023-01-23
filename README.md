@@ -80,24 +80,25 @@ Depending on the task the following metrics are calculated:
 ### Baselines
 
 We also provide baselines for each task:
+
 - Whitespace correction:
-    - Dummy
+    - Dummy (**wsc_dummy**)
 - Spelling error correction:
-    - Dummy
-    - Close to dictionary (dictionaries can be found [here](dictionaries))
-    - [Norvig](https://norvig.com/spell-correct.html)
-    - [Aspell](http://aspell.net)
-    - [Hunspell](https://hunspell.github.io)
-    - [Jamspell](https://github.com/bakwc/JamSpell)
-    - [Neuspell (BERT)](https://github.com/neuspell/neuspell)
+    - Dummy (**sec_dummy**)
+    - Close to dictionary (**sec_ctd**)
+    - [Norvig](https://norvig.com/spell-correct.html) (**sec_norvig**)
+    - [Aspell](http://aspell.net) (**sec_aspell**)
+    - [Hunspell](https://hunspell.github.io) (**sec_hunspell**)
+    - [Jamspell](https://github.com/bakwc/JamSpell) (**sec_jamspell**)
+    - [Neuspell (BERT)](https://github.com/neuspell/neuspell) (**sec_neuspell_bert**)
 - Word-level spelling error detection:
-    - Dummy
-    - Out of dictionary (dictionaries can be found [here](dictionaries))
-    - From spelling error correction<sup>1</sup>
+    - Dummy (**sedw_dummy**)
+    - Out of dictionary (**sedw_ood**)
+    - From spelling error correction<sup>1</sup> (**sedw_from_sec**)
 - Sequence-level spelling error detection:
-    - Dummy
-    - Out of dictionary (dictionaries can be found [here](dictionaries))
-    - From spelling error correction<sup>1</sup>
+    - Dummy (**seds_dummy**)
+    - Out of dictionary (**seds_ood**)
+    - From spelling error correction<sup>1</sup> (**seds_from_sec**)
 
 The dummy baselines produce the predictions one gets by leaving the inputs unchanged.
 
@@ -105,19 +106,29 @@ The dummy baselines produce the predictions one gets by leaving the inputs uncha
 a word and sequence level. For the word level we simply predict that all words changed
 by a spelling corrector contain a spelling error. For the sequence level we
 predict that a sequence contains a spelling error if it is changed by a spelling corrector.
-All spelling error correction baselines can be used as underlying spelling correctors for this purpose.
+All spelling error correction baselines or prediction files
+can be used as underlying spelling correctors for this purpose.
 
 You can run a baseline using `tcb.baseline`:
 ```bash
 # run baseline on stdin and output to stdout
-tcb.baseline <baseline>
+tcb.baseline <baseline_name>
 
 # run baseline on file and output to stdout
-tcb.baseline <baseline> -f <input_file>
+tcb.baseline <baseline_name> -f <input_file>
 
 # run baseline on file and write predictions to file
-tcb.baseline <baseline> -f <input_file> -o <output_file>
+tcb.baseline <baseline_name> -f <input_file> -o <output_file>
+
+# some baselines require you to pass additional arguments,
+# you will get error messages if you dont
+# e.g. all dictionary based baselines like the out of dictionary baseline
+# for word-level spelling error detection need the path to a dictionary
+# as additional argument
+tcb.baseline sedw_ood -f <input_file> --dictionary <dictionary_file>
 ```
+
+Dictionaries can be found [here](dictionaries).
 
 We provide predictions for all of the baselines in [baselines](baselines).
 
