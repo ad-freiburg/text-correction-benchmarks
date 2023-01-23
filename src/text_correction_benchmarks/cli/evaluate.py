@@ -12,16 +12,6 @@ def parse_args() -> argparse.Namespace:
         "Evaluation script for most common text correction tasks."
     )
     parser.add_argument(
-        "benchmark_type",
-        choices=[
-            "seds",
-            "sedw",
-            "sec",
-            "wc"
-        ],
-        help="The benchmark type determines the metrics that will be used to evaluate the given files."
-    )
-    parser.add_argument(
         "benchmark",
         type=str,
         help="Path to the benchmark directory containing input and groundtruth files."
@@ -139,7 +129,7 @@ def evaluate(
                 prefix = "Sequence-averaged" if seq_avg else "Micro"
                 outputs.append((f"{prefix} F1", f"{f1 * 100:.2f}"))
 
-        elif name == "wc_f1":
+        elif name == "wsc_f1":
             for seq_avg in [False, True]:
                 (f1, prec, rec) = metrics.whitespace_correction_f1(
                     corrupted,
@@ -157,20 +147,32 @@ def evaluate(
 
 
 def run(args: argparse.Namespace) -> None:
-    if args.benchmark_type == "seds":
-        benchmark_name = "Sequence-level spelling error detection"
+    split = os.path.abspath(args.benchmark).rstrip("/").split("/")
+    if len(split) < 2:
+        raise RuntimeError(
+            f"expected the benchmark directory to have at least one parent directory specifying "
+            f"the task, but got {split}"
+        )
+    benchmark_type = split[-2]
+    benchmark_name = split[-1]
+
+    if benchmark_type == "seds":
+        task_name = "Sequence-level spelling error detection"
         metric_names = {"bin_f1", "seq_acc"}
-    elif args.benchmark_type == "sedw":
-        benchmark_name = "Word-level spelling error detection"
+    elif benchmark_type == "sedw":
+        task_name = "Word-level spelling error detection"
         metric_names = {"bin_f1", "word_acc"}
-    elif args.benchmark_type == "sec":
-        benchmark_name = "Spelling error correction"
+    elif benchmark_type == "sec":
+        task_name = "Spelling error correction"
         metric_names = {"sec_f1", "mned"}
-    elif args.benchmark_type == "wc":
-        benchmark_name = "Whitespace correction"
-        metric_names = {"wc_f1", "seq_acc"}
+    elif benchmark_type == "wsc":
+        task_name = "Whitespace correction"
+        metric_names = {"wsc_f1", "seq_acc"}
     else:
-        raise RuntimeError("should not happen")
+        raise RuntimeError(
+            f"unknonw benchmark type {benchmark_type}, make sure your directory "
+            f"structure has the correct format"
+        )
     assert len(args.predictions) > 0, "need to have at least one prediction file"
 
     in_file = os.path.join(args.benchmark, "corrupt.txt")
@@ -197,7 +199,10 @@ def run(args: argparse.Namespace) -> None:
     # generate nicely formatted output table for evaluations
     metric_headers = [name for name, _ in evaluations[0]]
     output_table = table.generate_table(
-        headers=[[benchmark_name] + metric_headers],
+        headers=[
+            [task_name] + [""] * len(metric_headers),
+            [benchmark_name] + metric_headers
+        ],
         data=[
             [name] + [value for _, value in evaluation]
             for (name, evaluation) in zip(pred_names, evaluations)

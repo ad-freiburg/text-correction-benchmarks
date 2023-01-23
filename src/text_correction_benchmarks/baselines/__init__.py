@@ -28,7 +28,7 @@ class Baselines:
     SEC_NEUSPELL_BERT = "sec_neuspell_bert"
 
     # Whitespace correction
-    WC_DUMMY = "wc_dummy"
+    WSC_DUMMY = "wsc_dummy"
 
 
 class Baseline:
@@ -63,8 +63,8 @@ def get_baseline(baseline: str, **kwargs: Any) -> Baseline:
     elif baseline == Baselines.SEC_DUMMY:
         from text_correction_benchmarks.baselines.sec import Dummy
         return Dummy()
-    elif baseline == Baselines.WC_DUMMY:
-        from text_correction_benchmarks.baselines.wc import Dummy
+    elif baseline == Baselines.WSC_DUMMY:
+        from text_correction_benchmarks.baselines.wsc import Dummy
         return Dummy()
     else:
         raise ValueError(f"unknown baseline {baseline}")
