@@ -22,6 +22,13 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         help="Paths to the prediction files as outputted by text correction models."
     )
+    parser.add_argument(
+        "--sort",
+        type=str,
+        default=None,
+        help="Sort evaluations by the given metric. If not specified, "
+        "the order is equal to the order in which the predictions were given."
+    )
     lowercase_group = parser.add_argument_group()
     lowercase_group.add_argument(
         "--lowercase",
@@ -48,7 +55,7 @@ def evaluate(
     predicted_file: str,
     metric_names: Set[str],
     lowercase: Union[bool, str]
-) -> List[Tuple[str, str]]:
+) -> List[Tuple[str, str, float, bool]]:
     groundtruths = load_text_file(groundtruth_file)
     predictions = load_text_file(predicted_file)
     corrupted = load_text_file(corrupted_file)
@@ -88,10 +95,10 @@ def evaluate(
                 for label in groundtruths
                 for lab in label.split()
             ]
-            f1, prec, rec = metrics.binary_f1(
+            f1, _, _ = metrics.binary_f1(
                 binary_predictions, binary_labels
             )
-            outputs.append(("F1", f"{100 * f1:.2f}"))
+            outputs.append(("F1", f"{100 * f1:.2f}", f1, True))
 
         elif name == "word_acc":
             word_predictions = [
@@ -106,39 +113,43 @@ def evaluate(
             ]
 
             accuracy = metrics.accuracy(word_predictions, word_groundtruths)
-            outputs.append(("Word accuracy", f"{accuracy * 100:.2f}"))
+            outputs.append(
+                ("Word accuracy", f"{accuracy * 100:.2f}", accuracy, True)
+            )
 
         elif name == "seq_acc":
             accuracy = metrics.accuracy(predictions, groundtruths)
-            outputs.append(("Sequence accuracy", f"{accuracy * 100:.2f}"))
+            outputs.append(
+                ("Sequence accuracy", f"{accuracy * 100:.2f}", accuracy, True)
+            )
 
         elif name == "mned":
             mned = metrics.mean_normalized_sequence_edit_distance(
                 predictions, groundtruths
             )
-            outputs.append(("MNED", f"{mned:.4f}"))
+            outputs.append(("MNED", f"{mned:.4f}", mned, False))
 
         elif name == "sec_f1":
             for seq_avg in [False, True]:
-                (f1, prec, rec) = metrics.spelling_correction_f1(
+                f1, _, _ = metrics.spelling_correction_f1(
                     corrupted,
                     predictions,
                     groundtruths,
                     sequence_averaged=seq_avg
                 )
                 prefix = "Sequence-averaged" if seq_avg else "Micro"
-                outputs.append((f"{prefix} F1", f"{f1 * 100:.2f}"))
+                outputs.append((f"{prefix} F1", f"{f1 * 100:.2f}", f1, True))
 
         elif name == "wsc_f1":
             for seq_avg in [False, True]:
-                (f1, prec, rec) = metrics.whitespace_correction_f1(
+                f1, _, _ = metrics.whitespace_correction_f1(
                     corrupted,
                     predictions,
                     groundtruths,
                     sequence_averaged=seq_avg
                 )
                 prefix = "Sequence-averaged" if seq_avg else "Micro"
-                outputs.append((f"{prefix} F1", f"{f1 * 100:.2f}"))
+                outputs.append((f"{prefix} F1", f"{f1 * 100:.2f}", f1, True))
 
         else:
             raise RuntimeError(f"unknown metric {name}")
@@ -197,16 +208,25 @@ def run(args: argparse.Namespace) -> None:
         )
 
     # generate nicely formatted output table for evaluations
-    metric_headers = [name for name, _ in evaluations[0]]
+    metric_headers = [name for name, *_ in evaluations[0]]
+    if args.sort is not None:
+        assert args.sort in metric_headers, \
+            f"sort must be a metric name in {metric_headers}, but got '{args.sort}'"
+        sort_idx = metric_headers.index(args.sort)
+        larger_is_better = [larger for *_, larger in evaluations[0]]
+        evaluations = sorted(
+            evaluations, key=lambda e: e[sort_idx][2], reverse=larger_is_better[sort_idx]
+        )
+    data = [
+        [name] + [formatted_value for _, formatted_value, _, _ in evaluation]
+        for (name, evaluation) in zip(pred_names, evaluations)
+    ]
     output_table = table.generate_table(
         headers=[
             [task_name] + [""] * len(metric_headers),
             [benchmark_name] + metric_headers
         ],
-        data=[
-            [name] + [value for _, value in evaluation]
-            for (name, evaluation) in zip(pred_names, evaluations)
-        ],
+        data=data,
         alignments=["left"] + ["right"] * len(metric_headers)
     )
     print(output_table)
