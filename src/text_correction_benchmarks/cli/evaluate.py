@@ -190,36 +190,35 @@ def run(args: argparse.Namespace) -> None:
     gt_file = os.path.join(args.benchmark, "correct.txt")
     try:
         evaluations = []
-        pred_names = []
         for pred_file in args.predictions:
-            evaluations.append(evaluate(
+            evaluation = evaluate(
                 corrupted_file=in_file,
                 groundtruth_file=gt_file,
                 predicted_file=pred_file,
                 metric_names=metric_names,
                 # lowercase only respected for sec benchmarks
                 lowercase=args.lowercase and args.benchmark_type == "sec"
-            ))
+            )
             pred_name, _ = os.path.splitext(os.path.split(pred_file)[-1])
-            pred_names.append(pred_name)
+            evaluations.append((pred_name, evaluation))
     except Exception as e:
         raise RuntimeError(
             f"encountered exception during evaluation: '{e}'.\n"
         )
 
     # generate nicely formatted output table for evaluations
-    metric_headers = [name for name, *_ in evaluations[0]]
+    metric_headers = [name for name, *_ in evaluations[0][1]]
     if args.sort is not None:
         assert args.sort in metric_headers, \
             f"sort must be a metric name in {metric_headers}, but got '{args.sort}'"
         sort_idx = metric_headers.index(args.sort)
-        larger_is_better = [larger for *_, larger in evaluations[0]]
+        larger_is_better = [larger for *_, larger in evaluations[0][1]]
         evaluations = sorted(
-            evaluations, key=lambda e: e[sort_idx][2], reverse=larger_is_better[sort_idx]
+            evaluations, key=lambda e: e[1][sort_idx][2], reverse=larger_is_better[sort_idx]
         )
     data = [
         [name] + [formatted_value for _, formatted_value, _, _ in evaluation]
-        for (name, evaluation) in zip(pred_names, evaluations)
+        for (name, evaluation) in evaluations
     ]
     output_table = table.generate_table(
         headers=[
