@@ -16,11 +16,21 @@ def parse_args() -> argparse.Namespace:
         type=str,
         help="Path to the benchmark directory containing input and groundtruth files."
     )
-    parser.add_argument(
-        "predictions",
+    prediction_group = parser.add_mutually_exclusive_group(required=False)
+    prediction_group.add_argument(
+        "-f",
+        "--files",
         type=str,
+        default=None,
         nargs="+",
         help="Paths to the prediction files as outputted by text correction models."
+    )
+    prediction_group.add_argument(
+        "-d",
+        "--dir",
+        type=str,
+        default=None,
+        help="Path to a directory containing prediction files as outputted by text correction models."
     )
     parser.add_argument(
         "--sort",
@@ -184,13 +194,30 @@ def run(args: argparse.Namespace) -> None:
             f"unknonw benchmark type {benchmark_type}, make sure your directory "
             f"structure has the correct format"
         )
-    assert len(args.predictions) > 0, "need to have at least one prediction file"
+
+    if args.files is not None:
+        predictions = args.files
+    elif args.dir is not None:
+        predictions = [
+            os.path.join(args.dir, file)
+            for file in os.listdir(args.dir)
+        ]
+    else:
+        prediction_dir = os.path.join(args.benchmark, "predictions")
+        assert os.path.exists(prediction_dir) and os.path.isdir(prediction_dir), \
+            f"expecting a subdirectory 'predictions' in {args.benchmark} if neither --files/-f nor --dir/-d is specified"
+        predictions = [
+            os.path.join(prediction_dir, file)
+            for file in os.listdir(prediction_dir)
+        ]
+
+    assert len(predictions) > 0, "need to have at least one prediction file"
 
     in_file = os.path.join(args.benchmark, "corrupt.txt")
     gt_file = os.path.join(args.benchmark, "correct.txt")
     try:
         evaluations = []
-        for pred_file in args.predictions:
+        for pred_file in predictions:
             evaluation = evaluate(
                 corrupted_file=in_file,
                 groundtruth_file=gt_file,
