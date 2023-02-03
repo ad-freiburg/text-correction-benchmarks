@@ -30,4 +30,11 @@ dependencies = [
 "tcb.baseline" = "text_correction_benchmarks.baselines:main"
 
 [project.urls]
-Github = "https://github.com/bastiscode/text-correction-benchmarks"
+Github = "https://github.com/ad-freiburg/text-correction-benchmarks"
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

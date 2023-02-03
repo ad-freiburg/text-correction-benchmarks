@@ -1,6 +1,5 @@
 import argparse
 import os
-import pprint
 
 from text_correction_utils import api, logging
 
@@ -10,8 +9,16 @@ _BENCHMARK_URL = ""
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "output_dir", type=str,
+        "-o",
+        "--out",
+        type=str,
+        required=True,
         help="Output directory where benchmarks will be saved and extracted to"
+    )
+    parser.add_argument(
+        "--no-predictions",
+        action="store_true",
+        help="Do not download predictions, but just the benchmarks"
     )
     parser.add_argument(
         "-f",
@@ -38,8 +45,7 @@ def download(args: argparse.Namespace):
         logger
     )
     logger.info(
-        f"downloaded and extracted text correction benchmarks to {benchmark_dir}:\n\
-        {pprint.pformat(os.listdir(benchmark_dir))}"
+        f"downloaded and extracted text correction benchmarks to {benchmark_dir}"
     )
 
 
