@@ -87,10 +87,12 @@ def evaluate(
         ]
     else:
         raise TypeError(
-            f"expected lowercase to be a string or a bool, but got {type(lowercase)}")
+            f"expected lowercase to be a string or a bool, but got {type(lowercase)}"
+        )
 
     assert len(groundtruths) == len(corrupted) == len(lowercase_lines), \
-        "expected the same number of lines in the groundtruth, corrupted, and lowercase files"
+        f"expected the same number of lines in the groundtruth, corrupted, and lowercase files, " \
+        f"but got {len(groundtruths)}, {len(corrupted)}, and {len(lowercase_lines)}"
     if not allow_subset:
         assert len(predictions) == len(groundtruths), \
             "expected the same number of lines in groundtruth and prediction"
