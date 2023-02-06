@@ -67,6 +67,9 @@ def get_baseline(baseline: str, **kwargs: Any) -> Baseline:
     elif baseline == Baselines.WSC_DUMMY:
         from text_correction_benchmarks.baselines.wsc import Dummy
         return Dummy()
+    elif baseline == Baselines.WSC_WORDSEGMENT:
+        from text_correction_benchmarks.baselines.wsc import Wordsegment
+        return Wordsegment()
     else:
         raise ValueError(f"unknown baseline {baseline}")
 
