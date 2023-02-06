@@ -90,12 +90,13 @@ def evaluate(
             f"expected lowercase to be a string or a bool, but got {type(lowercase)}"
         )
 
-    assert len(groundtruths) == len(corrupted) == len(lowercase_lines), \
-        f"expected the same number of lines in the groundtruth, corrupted, and lowercase files, " \
-        f"but got {len(groundtruths)}, {len(corrupted)}, and {len(lowercase_lines)}"
+    assert len(groundtruths) == len(corrupted), \
+        f"expected the same number of lines in the groundtruth and corrupted files, " \
+        f"but got {len(groundtruths)} and {len(corrupted)}"
     if not allow_subset:
-        assert len(predictions) == len(groundtruths), \
-            "expected the same number of lines in groundtruth and prediction"
+        assert len(predictions) == len(groundtruths) and len(predictions) == len(lowercase_lines), \
+            "expected the same number of lines in groundtruth, prediction, and lowercase files, " \
+            f"but got {len(groundtruths)}, {len(predictions)}, and {len(lowercase_lines)}"
     else:
         groundtruths = groundtruths[:len(predictions)]
         corrupted = corrupted[:len(predictions)]
@@ -239,7 +240,11 @@ def run(args: argparse.Namespace) -> None:
                 predicted_file=pred_file,
                 metric_names=metric_names,
                 # lowercase only respected for sec benchmarks
-                lowercase=args.lowercase and args.benchmark_type == "sec",
+                lowercase=(
+                    args.lowercase_file
+                    if args.lowercase_file is not None
+                    else args.lowercase
+                ) and args.benchmark_type == "sec",
                 allow_subset=args.allow_subset
             )
             pred_name, _ = os.path.splitext(os.path.split(pred_file)[-1])
