@@ -56,6 +56,11 @@ def parse_args() -> argparse.Namespace:
              "benchmark because half of its sequences are from bea322/bea4660 and they have lowercased inputs "
              "and groundtruths."
     )
+    parser.add_argument(
+        "--allow-subset",
+        action="store_true",
+        help="Whether to allow the predictions to be a subset of the groundtruths (have fewer lines)."
+    )
     return parser.parse_args()
 
 
@@ -64,7 +69,8 @@ def evaluate(
     groundtruth_file: str,
     predicted_file: str,
     metric_names: Set[str],
-    lowercase: Union[bool, str]
+    lowercase: Union[bool, str],
+    allow_subset: bool
 ) -> List[Tuple[str, str, float, bool]]:
     groundtruths = load_text_file(groundtruth_file)
     predictions = load_text_file(predicted_file)
@@ -83,8 +89,15 @@ def evaluate(
         raise TypeError(
             f"expected lowercase to be a string or a bool, but got {type(lowercase)}")
 
-    assert len(predictions) == len(groundtruths) == len(corrupted) == len(lowercase_lines), \
-        "expected the same number of lines in the groundtruth, prediction, corrupted, and lowercase files"
+    assert len(groundtruths) == len(corrupted) == len(lowercase_lines), \
+        "expected the same number of lines in the groundtruth, corrupted, and lowercase files"
+    if not allow_subset:
+        assert len(predictions) == len(groundtruths), \
+            "expected the same number of lines in groundtruth and prediction"
+    else:
+        groundtruths = groundtruths[:len(predictions)]
+        corrupted = corrupted[:len(predictions)]
+        lowercase_lines = lowercase_lines[:len(predictions)]
 
     predictions = [
         p.lower() if lower else p
@@ -224,7 +237,8 @@ def run(args: argparse.Namespace) -> None:
                 predicted_file=pred_file,
                 metric_names=metric_names,
                 # lowercase only respected for sec benchmarks
-                lowercase=args.lowercase and args.benchmark_type == "sec"
+                lowercase=args.lowercase and args.benchmark_type == "sec",
+                allow_subset=args.allow_subset
             )
             pred_name, _ = os.path.splitext(os.path.split(pred_file)[-1])
             evaluations.append((pred_name, evaluation))

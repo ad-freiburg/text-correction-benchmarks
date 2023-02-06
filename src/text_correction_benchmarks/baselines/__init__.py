@@ -1,6 +1,6 @@
 import argparse
 import sys
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Iterable, Optional
 
 from text_correction_utils import text, unicode
 
@@ -29,13 +29,14 @@ class Baselines:
 
     # Whitespace correction
     WSC_DUMMY = "wsc_dummy"
+    WSC_WORDSEGMENT = "wsc_wordsegment"
 
 
 class Baseline:
     def __init__(self, seed: Optional[int] = None):
         self.seed = seed
 
-    def run(self, sequences: Iterable[str], **kwargs: Dict[str, Any]) -> Iterable[str]:
+    def run(self, sequences: Iterable[str], **kwargs: Any) -> Iterable[str]:
         raise NotImplementedError
 
     @property
