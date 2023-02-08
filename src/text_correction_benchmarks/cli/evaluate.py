@@ -55,9 +55,9 @@ def parse_args() -> argparse.Namespace:
         help="Whether to highlight the best predictions."
     )
     parser.add_argument(
-        "--allow-subset",
+        "--disallow-subset",
         action="store_true",
-        help="Whether to allow the predictions to be a subset of the groundtruths (have fewer lines)."
+        help="Whether to allow the predictions to be a subset of the groundtruths (have fewer lines). Allowed by default."
     )
     return parser.parse_args()
 
@@ -68,7 +68,7 @@ def evaluate(
     predicted_file: str,
     metrics: List[str],
     lowercase_file: Optional[str],
-    allow_subset: bool
+    disallow_subset: bool
 ) -> List[Tuple[str, str, float]]:
     groundtruths = load_text_file(groundtruth_file)
     corrupted = load_text_file(corrupted_file)
@@ -85,7 +85,7 @@ def evaluate(
     else:
         lowercase_lines = [False] * len(predictions)
 
-    if not allow_subset:
+    if disallow_subset:
         assert len(predictions) == len(groundtruths) and len(predictions) == len(lowercase_lines), \
             "expected the same number of lines in groundtruth, prediction, and lowercase files, " \
             f"but got {len(groundtruths)}, {len(predictions)}, and {len(lowercase_lines)}"
@@ -302,7 +302,7 @@ def run(args: argparse.Namespace) -> None:
                     lowercase_file=lc_file if os.path.exists(
                         lc_file
                     ) and task == "sec" else None,
-                    allow_subset=args.allow_subset
+                    disallow_subset=args.disallow_subset
                 )
                 pred_name, _ = os.path.splitext(os.path.split(pred_file)[-1])
                 evaluations.append((pred_name, evaluation))
