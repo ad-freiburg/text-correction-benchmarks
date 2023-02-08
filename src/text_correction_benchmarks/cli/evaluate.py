@@ -321,9 +321,9 @@ def run(args: argparse.Namespace) -> None:
             assert args.sort in metric_names, \
                 f"sort must be a metric name in {metric_names}, but got '{args.sort}'"
             sort_idx = metric_names.index(args.sort)
-            larger_is_better = [larger for *_, larger in evaluations[0][1]]
+            larger_is_better = _LARGER_IS_BETTER[metrics[sort_idx]]
             evaluations = sorted(
-                evaluations, key=lambda e: e[1][sort_idx][2], reverse=larger_is_better[sort_idx]
+                evaluations, key=lambda e: e[1][sort_idx][2], reverse=larger_is_better
             )
         data = [
             [name] + [formatted_value for _, formatted_value, *_ in evaluation]
