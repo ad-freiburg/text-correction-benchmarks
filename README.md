@@ -6,7 +6,7 @@ easy to use.
 ### Installation
 
 ```
-git clone https://github.com/bastiscode/text-correction-benchmarks
+git clone https://github.com/ad-freiburg/text-correction-benchmarks
 cd text-correction-benchmarks && pip install .
 ```
 
@@ -50,16 +50,32 @@ of your method during developement. Final evaluations should always be done on t
 To evaluate predictions on a benchmark using `tcb.evaluate`,
 the following procedure is recommended:
 1. Run your model on `benchmarks/<split>/<task>/<benchmark>/corrupt.txt` 
-2. Save your predictions in the expected format for the benchmark as `<model_name>.txt`
+2. Save your predictions in the expected format for the benchmark under
+   in `benchmarks/<split>/<task>/<benchmark>/predictions/<model_name>.txt`
 3. Evaluate your predictions on a benchmark using `tcb.evaluate`:
    ```bash
    # evaluate your predictions on the benchmark
-   tcb.evaluate benchmarks/<split>/<task>/<benchmark> <model_name>.txt
-   
-   # You can also pass in as additional model predictions you want to compare to, 
-   # the output is formatted as a markdown table:
-   tcb.evaluate benchmarks/<split>/<task>/<benchmark> <model_name>.txt <other_model>.txt ...
+   tcb.evaluate -b benchmarks/<split>/<task>/<benchmark>
+
+   # optionally sort by some metric and highlight the best predictions
+   tcb.evaluate -b benchmarks/<split>/<task>/<benchmark> --sort "<metric>" --highlight
    ```
+
+You can also evaluate across multiple benchmarks like so:
+```bash
+# when evaluating across multiple benchmarks you always need to specify a metric,
+# otherwise you will get an error 
+
+# listing multiple benchmarks
+tcb.evaluate -b benchmarks/<split>/<task>/<benchmark1> \
+    benchmarks/<split>/<task>/<benchmark2> ... -m "<metric>"
+
+# using glob pattern
+tcb.evaluate -b benchmarks/<split>/<task>/<gl*ob_patte*rn> -m "<metric>"
+
+# you can highlight the best predictions per benchmark
+tcb.evaluate -b benchmarks/<split>/<task>/<gl*ob_patte*rn> -m "<metric>" --highlight
+```
 
 Depending on the task the following metrics are calculated:
 - Whitespace correction
@@ -130,7 +146,9 @@ tcb.baseline sedw_ood -f <input_file> --dictionary <dictionary_file>
 
 Dictionaries can be found [here](dictionaries).
 
-We provide predictions for all of the baselines in [baselines](baselines).
+Predictions of the baselines and other models from the literature 
+can be found in a subdirectory `predictions` in each benchmark,
+see e.g. [here](benchmarks/test/wsc/arXiv.OCR/predictions).
 
 ---
 
