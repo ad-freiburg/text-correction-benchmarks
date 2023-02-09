@@ -23,6 +23,10 @@ classifiers = [
 dependencies = [
     "text-correction-utils>=0.1.1",
     "requests>=2.0.0",
+]
+
+[project.optional-dependencies]
+baselines = [
     "jamspell",
     "wordsegment"
 ]
