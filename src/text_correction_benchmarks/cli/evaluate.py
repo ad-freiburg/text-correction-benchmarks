@@ -172,12 +172,14 @@ def evaluate(
     return outputs
 
 
-def parse_benchmark(benchmark: str) -> Tuple[str, str, str]:
+def parse_benchmark(benchmark: str) -> Optional[Tuple[str, str, str]]:
+    if not os.path.exists(benchmark) or os.path.isfile(benchmark):
+        return None
     split = os.path.abspath(benchmark).rstrip("/").split("/")
     if len(split) < 2:
         raise RuntimeError(
-            f"expected the benchmark directory {benchmark} to have at least one parent directory specifying "
-            f"the task, but got {split}"
+            f"expected the benchmark directory {benchmark} to have at least one "
+            f"parent directory specifying the task, but got {split}"
         )
     task = split[-2]
     benchmark_name = split[-1]
@@ -231,14 +233,19 @@ def list_dir(path: str) -> List[str]:
     return [
         os.path.join(path, file)
         for file in os.listdir(path)
+        if os.path.isfile(os.path.join(path, file))
     ]
 
 
 def run(args: argparse.Namespace) -> None:
-    benchmarks = [parse_benchmark(b) for b in args.benchmarks]
+    benchmarks = []
+    for benchmark in args.benchmarks:
+        parsed_benchmark = parse_benchmark(benchmark)
+        if parsed_benchmark is not None:
+            benchmarks.append(parsed_benchmark)
 
     if len(benchmarks) == 0:
-        raise RuntimeError("no benchmarks specified")
+        raise RuntimeError("no valid benchmarks specified")
 
     elif len(benchmarks) == 1:
         benchmark, task, benchmark_name = benchmarks[0]
@@ -277,7 +284,7 @@ def run(args: argparse.Namespace) -> None:
         metric_names = [args.metric]
 
         benchmark_predictions = []
-        for benchmark in args.benchmarks:
+        for benchmark, *_ in benchmarks:
             prediction_dir = os.path.join(benchmark, "predictions")
             assert os.path.exists(prediction_dir) and os.path.isdir(prediction_dir), \
                 f"expecting a subdirectory 'predictions' in each benchmark directory when " \
@@ -287,7 +294,7 @@ def run(args: argparse.Namespace) -> None:
 
     try:
         benchmark_evaluations = []
-        for benchmark, predictions in zip(args.benchmarks, benchmark_predictions):
+        for (benchmark, *_), predictions in zip(benchmarks, benchmark_predictions):
             in_file = os.path.join(benchmark, "corrupt.txt")
             gt_file = os.path.join(benchmark, "correct.txt")
             lc_file = os.path.join(benchmark, "lowercase.txt")
