@@ -1,13 +1,20 @@
 import argparse
 import os
+import tempfile
 
 from text_correction_utils import api, logging
 
-_BENCHMARK_URL = ""
+_BASE_URL = "https://ad-publications.informatik.uni-freiburg.de/" \
+    "EMNLP_whitespace_correction_transformer_BHW_2022.materials"
+_BENCHMARK_WITH_PREDICTIONS_URL = f"{_BASE_URL}/benchmarks_with_predictions.zip"
+_BENCHMARK_URL = f"{_BASE_URL}/benchmarks.zip"
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        "Benchmark downloader",
+        "Downloads and extracts text correction benchmarks"
+    )
     parser.add_argument(
         "-o",
         "--out",
@@ -20,30 +27,31 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Do not download predictions, but just the benchmarks"
     )
-    parser.add_argument(
-        "-f",
-        "--force-download",
-        type=str,
-        action="store_true",
-        help="Force download of benchmarks, even if they were already downloaded"
-    )
     return parser.parse_args()
 
 
 def download(args: argparse.Namespace):
     logger = logging.get_logger("TEXT_CORRECTION_BENCHMARKS")
-    os.makedirs(args.output_dir, exist_ok=True)
-    download_dir = os.path.join(args.output_dir, ".download")
-    os.makedirs(download_dir, exist_ok=True)
-    benchmark_dir = api.download_zip(
-        "text correction benchmarks",
-        _BENCHMARK_URL,
-        download_dir,
-        args.output_dir,
-        ".",
-        args.force_download,
-        logger
-    )
+    if os.path.exists(args.out):
+        logger.error(f"output directory {args.out} already exists")
+        return
+
+    if args.no_predictions:
+        url = _BENCHMARK_URL
+    else:
+        url = _BENCHMARK_WITH_PREDICTIONS_URL
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        benchmark_dir = api.download_zip(
+            "text correction benchmarks",
+            url,
+            tmpdir,
+            args.out,
+            ".",
+            False,
+            logger
+        )
+
     logger.info(
         f"downloaded and extracted text correction benchmarks to {benchmark_dir}"
     )
