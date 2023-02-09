@@ -52,7 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--highlight",
         action="store_true",
-        help="Whether to highlight the best predictions."
+        help="Highlights the best predictions per benchmark or per metric in yellow."
     )
     parser.add_argument(
         "--disallow-subset",
@@ -330,7 +330,7 @@ def run(args: argparse.Namespace) -> None:
             for (name, evaluation) in evaluations
         ]
         if args.highlight:
-            mark_bold = set()
+            highlight = set()
             for i in range(len(metric_names)):
                 larger_is_better = _LARGER_IS_BETTER[metrics[i]]
                 indices_and_scores = [
@@ -341,17 +341,19 @@ def run(args: argparse.Namespace) -> None:
                     indices_and_scores,
                     key=lambda e: e[1], reverse=larger_is_better
                 )[0]
-                mark_bold.add((best_idx, i + 1))
+                highlight.add((best_idx, i + 1))
         else:
-            mark_bold = None
+            highlight = None
+
         output_table = table.generate_table(
             headers=[
                 [task_name] + [""] * len(metric_names),
                 [benchmark_name] + metric_names
             ],
             data=data,
-            mark_bold=mark_bold,
-            bold_type="terminal",
+            highlight=highlight,
+            highlight_type="terminal",
+            highlight_color="yellow",
             alignments=["left"] + ["right"] * len(metric_names)
         )
 
@@ -377,7 +379,7 @@ def run(args: argparse.Namespace) -> None:
             for name in model_names
         ]
         if args.highlight:
-            mark_bold = set()
+            highlight = set()
             missing_score = float("-inf") if larger_is_better else float("inf")
             for i in range(len(benchmarks)):
                 benchmark_name = benchmarks[i][2]
@@ -392,9 +394,9 @@ def run(args: argparse.Namespace) -> None:
                     indices_and_scores,
                     key=lambda e: e[1], reverse=larger_is_better
                 )[0]
-                mark_bold.add((best_idx, i + 1))
+                highlight.add((best_idx, i + 1))
         else:
-            mark_bold = None
+            highlight = None
 
         output_table = table.generate_table(
             headers=[
@@ -405,8 +407,9 @@ def run(args: argparse.Namespace) -> None:
                 ]
             ],
             data=data,
-            mark_bold=mark_bold,
-            bold_type="terminal",
+            highlight=highlight,
+            highlight_type="terminal",
+            highlight_color="yellow",
             alignments=["left"] + ["right"] * len(benchmark_evaluations)
         )
 
