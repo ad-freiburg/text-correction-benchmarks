@@ -17,7 +17,7 @@ After installation you will have two commands available to you:
 ### Usage
 
 This repository contains [benchmarks](benchmarks) for text correction tasks such as
-- Whitespace correction (**wc**)
+- Whitespace correction (**wsc**)
 - Spelling error correction (**sec**)
 - Word-level spelling error detection (**sedw**)
 - Sequence-level spelling error detection (**seds**)
