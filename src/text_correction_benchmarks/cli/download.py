@@ -5,7 +5,7 @@ import tempfile
 from text_correction_utils import api, logging
 
 _BASE_URL = "https://ad-publications.informatik.uni-freiburg.de/" \
-    "EMNLP_whitespace_correction_transformer_BHW_2022.materials"
+    "ACL_whitespace_correction_transformer_BHW_2023.materials"
 _BENCHMARK_WITH_PREDICTIONS_URL = f"{_BASE_URL}/benchmarks_with_predictions.zip"
 _BENCHMARK_URL = f"{_BASE_URL}/benchmarks.zip"
 
