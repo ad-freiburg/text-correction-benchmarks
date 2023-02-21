@@ -149,7 +149,7 @@ def evaluate(
             outputs.append((mned, f"{mned:.4f}", mned))
 
         elif metric == "sec_f1_micro" or metric == "sec_f1_seq":
-            f1, _, _ = M.spelling_correction_f1(
+            (f1, _, _), _ = M.spelling_correction_f1(
                 corrupted,
                 predictions,
                 groundtruths,
@@ -158,7 +158,7 @@ def evaluate(
             outputs.append((metric_name, f"{f1 * 100:.2f}", f1))
 
         elif metric == "wsc_f1_micro" or metric == "wsc_f1_seq":
-            f1, _, _ = M.whitespace_correction_f1(
+            (f1, _, _), _ = M.whitespace_correction_f1(
                 corrupted,
                 predictions,
                 groundtruths,
