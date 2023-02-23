@@ -6,6 +6,12 @@ easy to use.
 ### Installation
 
 ```
+pip install text-correction-benchmarks
+```
+
+or
+
+```
 git clone https://github.com/ad-freiburg/text-correction-benchmarks
 cd text-correction-benchmarks && pip install .
 ```
