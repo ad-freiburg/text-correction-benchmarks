@@ -31,6 +31,10 @@ class Baselines:
     WSC_DUMMY = "wsc_dummy"
     WSC_WORDSEGMENT = "wsc_wordsegment"
 
+    # Genral models able to do all tasks (usually
+    # language models)
+    CHAT_GPT = "chat_gpt"
+
 
 class Baseline:
     def __init__(self, seed: Optional[int] = None):
@@ -70,6 +74,11 @@ def get_baseline(baseline: str, **kwargs: Any) -> Baseline:
     elif baseline == Baselines.WSC_WORDSEGMENT:
         from text_correction_benchmarks.baselines.wsc import Wordsegment
         return Wordsegment()
+    elif baseline == Baselines.CHAT_GPT:
+        from text_correction_benchmarks.baselines.general import ChatGPT
+        assert kwargs["task"] is not None, \
+            "task must be specified for the chat gpt baseline"
+        return ChatGPT(task=kwargs["task"])
     else:
         raise ValueError(f"unknown baseline {baseline}")
 
@@ -89,6 +98,21 @@ def parse_args() -> argparse.Namespace:
         help="The baseline to run"
     )
     parser.add_argument(
+        "--task",
+        choices=["seds", "sedw", "sec", "wsc", "gec"],
+        default=None,
+        help="Specify the task to run the baseline on, "
+        "only required for general models that can do all tasks"
+    )
+    input_group = parser.add_mutually_exclusive_group()
+    input_group.add_argument(
+        "-t",
+        "--text",
+        type=str,
+        default=None,
+        help="Run baseline on this text instead of stdin"
+    )
+    input_group.add_argument(
         "-f",
         "--file",
         type=str,
@@ -132,10 +156,12 @@ def prepare(
 def run(args: argparse.Namespace):
     # prepare baseline and input
     baseline = get_baseline(**vars(args))
-    if args.file is None:
-        sequences = sys.stdin
-    else:
+    if args.text is not None:
+        sequences = [args.text]
+    elif args.file is not None:
         sequences = open(args.file, "r", encoding="utf8")
+    else:
+        sequences = sys.stdin
 
     if args.out is not None:
         of = open(args.out, "w", encoding="utf8")
