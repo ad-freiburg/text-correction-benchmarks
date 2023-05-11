@@ -131,3 +131,4 @@ dmypy.json
 # Custom
 results
 wheels
+*.zip

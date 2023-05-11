@@ -143,7 +143,7 @@ def evaluate(
             )
 
         elif metric == "mned":
-            mned = M.mean_normalized_sequence_edit_distance(
+            mned = M.mean_normalized_edit_distance(
                 predictions, groundtruths
             )
             outputs.append((mned, f"{mned:.4f}", mned))
@@ -291,6 +291,9 @@ def run(args: argparse.Namespace) -> None:
                 f"evaluating on multiple benchmarks, but got none in {benchmark}"
             predictions = list_dir(prediction_dir)
             benchmark_predictions.append(predictions)
+
+    if all(len(predictions) == 0 for predictions in benchmark_predictions):
+        raise RuntimeError("no benchmark predictions")
 
     try:
         benchmark_evaluations = []
