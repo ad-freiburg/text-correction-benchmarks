@@ -1,6 +1,6 @@
 [project]
 name = "text_correction_benchmarks"
-version = "0.1.2"
+version = "0.1.3"
 description = "Benchmarks and evaluation tools for text correction tasks"
 authors = [
     { name = "Sebastian Walter", email = "swalter@cs.uni-freiburg.de" }
@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "text-correction-utils>=0.1.4",
+    "text-correction-utils==0.1.4",
     "requests>=2.0.0",
     "openai>=0.27.0"
 ]
