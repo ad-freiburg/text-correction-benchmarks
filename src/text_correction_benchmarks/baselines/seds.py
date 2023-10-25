@@ -1,6 +1,6 @@
 from typing import Iterable, Any
 
-from text_correction_utils import dictionary as dct
+from text_utils import dictionary as dct
 from text_correction_benchmarks.baselines import Baseline
 
 

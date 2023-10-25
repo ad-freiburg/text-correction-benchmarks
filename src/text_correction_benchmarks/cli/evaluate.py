@@ -2,9 +2,9 @@ import argparse
 import os
 from typing import List, Tuple, Optional
 
-from text_correction_utils import metrics as M
-from text_correction_utils.io import load_text_file
-from text_correction_utils.api import table
+from text_utils import metrics as M
+from text_utils.io import load_text_file
+from text_utils.api import table
 
 
 def parse_args() -> argparse.Namespace:

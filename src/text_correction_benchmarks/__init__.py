@@ -1,0 +1,1 @@
+from text_correction_benchmarks.version import __version__

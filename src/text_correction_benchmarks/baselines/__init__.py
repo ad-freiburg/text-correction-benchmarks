@@ -2,7 +2,7 @@ import argparse
 import sys
 from typing import Any, Iterable, Optional
 
-from text_correction_utils import text, unicode
+from text_utils import text, unicode
 
 
 class Baselines:

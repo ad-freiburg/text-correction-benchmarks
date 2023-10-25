@@ -2,7 +2,7 @@ import os
 from typing import Iterable, Any
 
 from text_correction_benchmarks.baselines import Baseline
-from text_correction_utils import text
+from text_utils import text
 
 import openai
 from openai.error import OpenAIError, RateLimitError

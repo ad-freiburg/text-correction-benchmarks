@@ -2,7 +2,7 @@ import argparse
 import os
 import tempfile
 
-from text_correction_utils import api, logging
+from text_utils import api, logging
 
 _BASE_URL = "https://ad-publications.informatik.uni-freiburg.de/" \
     "ACL_whitespace_correction_transformer_BHW_2023.materials"
